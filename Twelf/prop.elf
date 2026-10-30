@@ -254,7 +254,7 @@ gliv2 : {phi:o} {di: true_I (neg (neg phi))} {dc: true (neg (neg phi))} (gl2_aux
          -> glivenko2 phi di (raa phi dc).
 
 %mode glivenko2 +Phi +D_int -Dcl.
-%worlds () (glivenko2 _ _ _).
+%worlds (b_hyp_gl2) (glivenko2 _ _ _).
 %total D_int (glivenko2 _ D_int _).
 
 
