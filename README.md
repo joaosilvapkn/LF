@@ -2,7 +2,7 @@
 
 The Edinburgh Logical Framework (LF), is a metalanguage designed for the specification of deductive systems, and provides a uniform setting to represent and reason about various logical theories.
 
-#$ Meta
+## Meta
 
 - **Author:** João Silva
 - **Compatible Idris 1 versions:** 1.3.3 or later
@@ -10,7 +10,7 @@ The Edinburgh Logical Framework (LF), is a metalanguage designed for the specifi
 
 
 
-#$ Repository Organization
+## Repository Organization
 
 This repository contains the formalization and implementation developed as part of my master's dissertation on the LF logical framework.
 
