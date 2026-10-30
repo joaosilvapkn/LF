@@ -1,0 +1,549 @@
+o : type.
+bot : o.
+and : o -> o -> o.
+or : o -> o -> o.
+imp : o -> o -> o.
+neg : o -> o.
+
+true : o -> type.
+and-i : {phi:o} {psi:o} (true phi) -> (true psi) -> (true (and phi psi)).
+and-el : {phi:o} {psi:o} (true (and phi psi)) -> true psi.
+and-er : {phi:o} {psi:o} (true (and phi psi)) -> true phi.
+or-il : {phi:o} {psi:o}  (true psi) -> (true (or phi psi)).
+or-ir : {phi:o} {psi:o}  (true phi) -> (true (or phi psi)).
+or-e : {phi :o} {psi:o} {sigma:o} (true (or phi psi)) -> ((true phi) -> (true sigma)) -> ((true psi) -> (true sigma)) -> (true sigma).
+imp-i1 : {phi:o} {psi:o} (true psi) -> true (imp phi psi).
+imp-i2 : {phi:o} {psi:o} (true (neg phi)) -> true (imp phi psi).
+imp-e : {phi:o} {psi:o} true (imp phi psi) -> (true phi) -> (true psi).
+neg-i : {phi:o} ((true phi) -> (true bot)) -> true (neg phi).
+neg-e : {phi:o} (true phi) -> (true (neg phi)) -> true bot.
+raa : {phi:o} (true (neg (neg phi))) -> true phi.
+
+true_I : o -> type.
+and-i_I : {phi:o} {psi:o} (true_I phi) -> (true_I psi) -> (true_I (and phi psi)).
+and-el_I : {phi:o} {psi:o} (true_I (and phi psi)) -> true_I psi.
+and-er_I : {phi:o} {psi:o} (true_I (and phi psi)) -> true_I phi.
+or-il_I : {phi:o} {psi:o}  (true_I psi) -> (true_I (or phi psi)).
+or-ir_I : {phi:o} {psi:o}  (true_I phi) -> (true_I (or phi psi)).
+or-e_I : {phi :o} {psi:o} {sigma:o} (true_I (or phi psi)) -> ((true_I phi) -> (true_I sigma)) -> ((true_I psi) -> (true_I sigma)) -> (true_I sigma).
+imp-i_I : {phi:o} {psi:o} ((true_I phi) -> (true_I psi)) -> true_I (imp phi psi).
+imp-e_I : {phi:o} {psi:o} true_I (imp phi psi) -> (true_I phi) -> (true_I psi).
+neg-i_I : {phi:o} ((true_I phi) -> (true_I bot)) -> true_I (neg phi).
+neg-e_I : {phi:o} (true_I phi) -> (true_I (neg phi)) -> true_I bot.
+efq_I : {phi:o} (true_I bot) -> (true_I phi).
+
+
+glivenko1 : {phi:o}  true phi -> true_I (neg (neg phi)) -> type.
+
+case-neg-i : {phi:o} {d:true phi -> true bot} {di:true_I phi -> true_I (neg (neg bot))} 
+({h:true phi} {hi:true_I phi} {_ : glivenko1 phi h (neg-i_I (neg phi) ([dn:true_I (neg phi)] neg-e_I phi hi dn))} glivenko1 bot (d h) (di hi)) ->
+   glivenko1 (neg phi) (neg-i phi d) (neg-i_I (neg (neg phi)) ([dnn:true_I (neg (neg phi))] neg-e_I (neg phi) (neg-i_I phi ([dp:true_I phi] 
+   neg-e_I (neg bot) (neg-i_I bot ([db:true_I bot] db)) (di dp))) dnn)).
+
+
+glivenko1_neg_e : {a:o} {d_cl_A : true a} {d_cl_NA : true (neg a)} {d_int_NNA :  true_I (neg (neg a))} {d_int_NNNA : true_I (neg (neg (neg a)))}
+               glivenko1 bot (neg-e a (d_cl_A) (d_cl_NA))
+               (efq_I (neg (neg bot)) (neg-e_I (neg (neg a)) (d_int_NNA) (d_int_NNNA)))
+               <- glivenko1 a d_cl_A d_int_NNA
+               <- glivenko1 (neg a) d_cl_NA d_int_NNNA.
+
+   
+glivenko1_raa : {a:o} {d_cl_NNA : true (neg (neg a))} {d_int_NNNNA : true_I (neg (neg (neg (neg a))))}
+            glivenko1 a (raa a (d_cl_NNA))
+               (neg-i_I (neg a) ([h_na: true_I (neg a)] 
+                  neg-e_I (neg (neg (neg a)))  (neg-i_I (neg (neg a)) [h_nna: true_I (neg (neg a))] neg-e_I (neg a)  (h_na) (h_nna)) (d_int_NNNNA))
+               )
+            <- glivenko1 (neg (neg a)) d_cl_NNA d_int_NNNNA.
+
+glivenko1_and_i : {phi:o} {psi:o} {d1: true phi} {d2: true psi} {dI1: true_I (neg (neg phi))} {dI2: true_I (neg (neg psi))}
+                  glivenko1 (and phi psi) (and-i phi psi d1 d2) (neg-i_I (neg (and phi psi)) ([h_nand: true_I (neg (and phi psi))]
+                        neg-e_I (neg phi) (neg-i_I phi ([h_A: true_I phi]
+                           neg-e_I (neg psi) (neg-i_I psi ([h_B: true_I psi] neg-e_I (and phi psi) (and-i_I phi psi h_A h_B) h_nand)) dI2)) dI1))
+                  <- glivenko1 phi d1 dI1
+                  <- glivenko1 psi d2 dI2.
+
+
+
+glivenko1_and_er : {phi:o} {psi:o} {d_cl_and: true (and phi psi)} {d_int_and: true_I (neg (neg (and phi psi)))}
+                   glivenko1 phi (and-er phi psi d_cl_and)
+                      (neg-i_I (neg phi) ([h_nA: true_I (neg phi)]
+                         neg-e_I (neg (and phi psi))
+                            (neg-i_I (and phi psi) ([h_and: true_I (and phi psi)]
+                               neg-e_I phi (and-er_I phi psi h_and) h_nA))
+                            d_int_and))
+                   <- glivenko1 (and phi psi) d_cl_and d_int_and.
+
+
+glivenko1_and_el : {phi:o} {psi:o} {d_cl_and: true (and phi psi)} {d_int_and: true_I (neg (neg (and phi psi)))}
+                   glivenko1 psi (and-el phi psi d_cl_and)
+                      (neg-i_I (neg psi) ([h_nB: true_I (neg psi)]
+                         neg-e_I (neg (and phi psi))
+                            (neg-i_I (and phi psi) ([h_and: true_I (and phi psi)]
+                               neg-e_I psi (and-el_I phi psi h_and) h_nB))
+                            d_int_and))
+                   <- glivenko1 (and phi psi) d_cl_and d_int_and.
+
+
+
+
+
+glivenko1_or_il : {phi:o} {psi:o} {d_cl_B: true psi} {d_int_B: true_I (neg (neg psi))}           
+                  glivenko1 (or phi psi) (or-il phi psi d_cl_B)
+                     (neg-i_I (neg (or phi psi)) ([h_nor: true_I (neg (or phi psi))]
+                        neg-e_I (neg psi)
+                           (neg-i_I psi ([h_B: true_I psi]
+                              neg-e_I (or phi psi) (or-il_I phi psi h_B) h_nor))
+                           d_int_B))
+                  <- glivenko1 psi d_cl_B d_int_B.
+
+glivenko1_or_ir : {phi:o} {psi:o} {d_cl_A: true phi} {d_int_A: true_I (neg (neg phi))}             
+                  glivenko1 (or phi psi) (or-ir phi psi d_cl_A)
+                     (neg-i_I (neg (or phi psi)) ([h_nor: true_I (neg (or phi psi))]
+                        neg-e_I (neg phi)
+                           (neg-i_I phi ([h_A: true_I phi]
+                              neg-e_I (or phi psi) (or-ir_I phi psi h_A) h_nor))
+                           d_int_A))
+                  <- glivenko1 phi d_cl_A d_int_A.
+
+
+case-or-e : {phi:o} {psi:o} {sigma:o} {d:true (or phi psi)} {di: true_I (neg (neg (or phi psi)))} 
+                  {h: true phi -> true sigma} {hi: true_I phi -> true_I (neg (neg sigma))} 
+                  {f: true psi -> true sigma} {fi: true_I psi -> true_I (neg (neg sigma))}
+                  glivenko1 (or phi psi) d di -> 
+                  ({p: true phi} {pi: true_I phi} {_ : glivenko1 phi p (neg-i_I (neg phi) ([dn:true_I (neg phi)] neg-e_I phi pi dn))} glivenko1 sigma (h p) (hi pi)) -> 
+                  ({q: true psi} {qi: true_I psi} {_ : glivenko1 psi q (neg-i_I (neg psi) ([dn:true_I (neg psi)] neg-e_I psi qi dn))} glivenko1 sigma (f q) (fi qi)) ->
+                  glivenko1 sigma (or-e phi psi sigma d h f)
+                     (neg-i_I (neg sigma) ([dns: true_I (neg sigma)] neg-e_I (neg (or phi psi))  
+                        (neg-i_I (or phi psi) ([do:true_I (or phi psi)] or-e_I phi psi bot do 
+                           ([dphi:true_I phi] neg-e_I (neg sigma) dns (hi dphi)) 
+                           ([dpsi:true_I psi] neg-e_I (neg sigma) dns (fi dpsi))
+                     )) di )).
+
+
+
+glivenko1_imp_i1 : {phi:o} {psi:o} {d_cl_B: true psi} {d_int_B: true_I (neg (neg psi))}                 
+                   glivenko1 (imp phi psi) (imp-i1 phi psi d_cl_B)
+                      (neg-i_I (neg (imp phi psi)) ([h_nimp: true_I (neg (imp phi psi))]
+                         neg-e_I (neg psi)
+                            (neg-i_I psi ([h_B: true_I psi]
+                               neg-e_I (imp phi psi)
+                                  (imp-i_I phi psi ([_: true_I phi] h_B))
+                                  h_nimp))
+                            d_int_B))
+                   <- glivenko1 psi d_cl_B d_int_B.
+
+
+glivenko1_imp_i2 : {phi:o} {psi:o} {d_cl_nA: true (neg phi)} {d_int_nA: true_I (neg (neg (neg phi)))} 
+                   glivenko1 (imp phi psi) (imp-i2 phi psi d_cl_nA)
+                      (neg-i_I (neg (imp phi psi)) ([h_nimp: true_I (neg (imp phi psi))]
+                         neg-e_I (neg (neg phi))
+                            (neg-i_I (neg phi) ([h_nA: true_I (neg phi)]
+                               neg-e_I (imp phi psi)
+                                  (imp-i_I phi psi ([h_A: true_I phi]
+                                     efq_I psi (neg-e_I phi h_A h_nA)))
+                                  h_nimp))
+                            d_int_nA))
+                   <- glivenko1 (neg phi) d_cl_nA d_int_nA.
+
+
+glivenko1_imp_e : {a:o} {b:o} {d_cl_AB : true (imp a b)} {d_cl_A : true a} {d_int_AB : true_I (neg (neg (imp a b)))} {d_int_A : true_I (neg (neg a))}
+            glivenko1 b  (imp-e a b (d_cl_AB) (d_cl_A))
+               (neg-i_I (neg b) ([h_nb: true_I (neg b)] neg-e_I (neg (imp a b)) (neg-i_I (imp a b) [h_ab: true_I (imp a b)] 
+                  neg-e_I (neg a)   (neg-i_I a ([h_a: true_I a] neg-e_I b (imp-e_I a b h_ab h_a)  h_nb  ))  (d_int_A) )
+                     (d_int_AB)))
+              <- glivenko1 (imp a b) d_cl_AB d_int_AB
+              <- glivenko1 a d_cl_A d_int_A.
+
+
+%mode glivenko1 +A +D -Di.
+
+%block b :  some {phi:o} 
+            block {d: true phi} {di: true_I phi}
+                  {_ : glivenko1 phi d (neg-i_I (neg phi) ([dn: true_I (neg phi)] neg-e_I phi di dn))}.
+
+%worlds (b) (glivenko1 _ _ _).
+%total D (glivenko1 _ D _).
+
+
+
+gl2_aux: {phi:o} (true_I phi) -> (true phi) -> type.
+
+
+gl2_aux_and_i : {a:o} {b:o} {diA: true_I a} {diB: true_I b}  {dcA: true a} {dcB: true b}  
+               gl2_aux a diA dcA -> gl2_aux b diB dcB
+               -> gl2_aux (and a b) (and-i_I a b diA diB) (and-i a b dcA dcB).
+
+gl2_aux_and_el : {a:o} {b:o} {di: true_I (and a b)} {dc: true (and a b)}
+               gl2_aux (and a b) di dc -> gl2_aux b (and-el_I a b di) (and-el a b dc).
+
+
+gl2_aux_and_er : {a:o} {b:o} {di: true_I (and a b)} {dc: true (and a b)}
+               gl2_aux (and a b) di dc -> gl2_aux a (and-er_I a b di) (and-er a b dc).
+
+
+gl2_aux_or_il : {a:o} {b:o} {di: true_I b} {dc : true b}
+               gl2_aux b di dc -> gl2_aux (or a b) (or-il_I a b di) (or-il a b dc). 
+
+gl2_aux_or_ir : {a:o} {b:o} {di: true_I a} {dc : true a}
+               gl2_aux a di dc -> gl2_aux (or a b) (or-ir_I a b di) (or-ir a b dc). 
+
+gl2_aux_or_e : {a:o} {b:o} {sigma:o} {di_or: true_I (or a b)} {di_S1: true_I a -> true_I sigma} 
+               {di_S2: true_I b -> true_I sigma} {dc_or: true (or a b)}
+               {dc_S1: true a -> true sigma} {dc_S2: true b -> true sigma}
+               gl2_aux (or a b) di_or dc_or
+               -> ({h_int: true_I a} {h_cl: true a} {hi: gl2_aux a h_int h_cl} gl2_aux sigma (di_S1 h_int) (dc_S1 h_cl))
+               -> ({h_int: true_I b} {h_cl: true b} {hi: gl2_aux b h_int h_cl} gl2_aux sigma (di_S2 h_int) (dc_S2 h_cl))
+               -> gl2_aux sigma (or-e_I a b sigma di_or di_S1 di_S2) (or-e a b sigma dc_or dc_S1 dc_S2).
+
+
+
+gl2_aux_imp_i : {a:o} {b:o} {di_imp: true_I a -> true_I b} {dc_imp: true a -> true b}           
+                ({h_int: true_I a} {h_cl: true a} {hi: gl2_aux a h_int h_cl}
+                   gl2_aux b (di_imp h_int) (dc_imp h_cl))
+                -> gl2_aux (imp a b) (imp-i_I a b di_imp) 
+                      (raa (imp a b) (neg-i (neg (imp a b)) ([h_nimp: true (neg (imp a b))]
+                         neg-e (imp a b)
+                            (imp-i1 a b 
+                               (dc_imp 
+                                  (raa a (neg-i (neg a) ([h_na: true (neg a)]
+                                     neg-e (imp a b)
+                                        (imp-i2 a b h_na)
+                                        h_nimp)))))
+                            h_nimp))).
+
+
+
+gl2_aux_imp_e : {a:o} {b:o} {di_imp : true_I (imp a b)} {di_a : true_I a} {dc_imp : true (imp a b)} {dc_a : true a}
+                  (gl2_aux (imp a b) di_imp dc_imp) -> (gl2_aux a di_a dc_a)
+                  -> gl2_aux b (imp-e_I a b di_imp di_a) (imp-e a b dc_imp dc_a).
+
+
+
+gl2_aux_neg_i : {a:o} {di_neg: true_I a -> true_I bot} {dc_neg: true a -> true bot}         
+                ({h_int: true_I a} {h_cl: true a} {hi: gl2_aux a h_int h_cl} gl2_aux bot (di_neg h_int) (dc_neg h_cl))
+                -> gl2_aux (neg a) (neg-i_I a di_neg)
+                      (raa (neg a) (neg-i (neg (neg a)) ([h_nna: true (neg (neg a))]
+                         neg-e (neg a)
+                            (neg-i a ([h_cl_A: true a]
+                               dc_neg h_cl_A))
+                            h_nna))).
+
+
+gl2_aux_neg_e : {a:o} {di_a: true_I a} {di_na: true_I (neg a)} {dc_a: true a} {dc_na: true (neg a)}
+                  (gl2_aux a di_a dc_a) -> (gl2_aux (neg a) di_na dc_na)
+                  -> gl2_aux bot (neg-e_I a di_a di_na) (neg-e a dc_a dc_na).
+
+
+gl2_aux_efq : {a:o} {di : true_I bot} {dc : true bot} (gl2_aux bot di dc)
+               -> gl2_aux a (efq_I a di) (raa a (neg-i (neg a) ([xi: true (neg a)] dc))).
+
+
+%block b_hyp_gl2 :   some {A:o} 
+                     block {h_int: true_I A} {h_cl: true A}
+                           {hi_gl2: gl2_aux A h_int h_cl}.
+
+%mode gl2_aux +Phi +D_int -D_cl.
+%worlds (b_hyp_gl2) (gl2_aux _ _ _).
+%total D_int (gl2_aux _ D_int _).
+
+
+
+glivenko2 : {phi:o} (true_I (neg (neg phi))) -> (true phi) -> type.
+
+gliv2 : {phi:o} {di: true_I (neg (neg phi))} {dc: true (neg (neg phi))} (gl2_aux (neg (neg phi)) di dc) 
+         -> glivenko2 phi di (raa phi dc).
+
+%mode glivenko2 +Phi +D_int -Dcl.
+%worlds () (glivenko2 _ _ _).
+%total D_int (glivenko2 _ D_int _).
+
+
+
+
+nat : type.
+z:nat.
+s:nat -> nat.
+
+plus   : nat -> nat -> nat -> type.
+%mode plus +X1 +X2 -X3.
+
+plus-z : plus z N2 N2.
+plus-s : plus (s N1) N2 (s N3) <- plus N1 N2 N3.
+
+%worlds () (plus _ _ _).
+%total N (plus N _ _).
+
+
+plus-exists : {N1} {N2} plus N1 N2 N3 -> type.
+%mode plus-exists +X1 +X2 -X3.
+
+- : plus-exists z _ plus-z.
+- : plus-exists (s N1) N2 (plus-s D) <- plus-exists N1 N2 D.
+
+%worlds () (plus-exists _ _ _).
+%total N1 (plus-exists N1 _ _).
+
+
+
+plus-z-rh : {n:nat} plus n z n -> type.
+%mode plus-z-rh +N -D.
+
+- : plus-z-rh z plus-z.
+- : plus-z-rh (s N) (plus-s D) <- plus-z-rh N (D : plus N z N).
+
+%worlds () (plus-z-rh _ _).
+%total N (plus-z-rh N _).
+
+
+plus-s-rh : plus N1 N2 N3 -> plus N1 (s N2) (s N3) -> type.
+%mode plus-s-rh +D1 -D2.
+
+- : plus-s-rh plus-z plus-z.
+- : plus-s-rh (plus-s (D : plus N1' N2 N3')) (plus-s D') <- plus-s-rh D (D' : plus N1' (s N2) (s N3')).
+
+%worlds () (plus-s-rh _ _).
+%total D (plus-s-rh D _).
+
+
+plus-commute : plus N1 N2 N3 -> plus N2 N1 N3 -> type.
+%mode plus-commute +D1 -D2.
+
+-       : plus-commute (plus-z : plus z N N) D <- plus-z-rh N D.
+-       : plus-commute (plus-s D : plus (s N1) N2 (s N3)) D'' <- plus-commute D (D' : plus N2 N1 N3) <- plus-s-rh D' (D'' : plus N2 (s N1) (s N3)).
+
+%worlds () (plus-commute _ _).
+%total D (plus-commute D _).
+
+
+
+id/nat : nat -> nat -> type.
+id/nat-refl : id/nat N N.
+
+
+id/nat-s-cong : id/nat N1 N2 -> id/nat (s N1) (s N2) -> type.
+
+%mode id/nat-s-cong +X1 -X2.
+
+- : id/nat-s-cong id/nat-refl  id/nat-refl.
+
+%worlds () (id/nat-s-cong _ _).
+%total {} (id/nat-s-cong _ _).
+
+
+
+plus-unique : plus N1 N2 N3 -> plus N1 N2 N3' -> id/nat N3 N3' -> type.
+%mode plus-unique +X1 +X2 -X3.
+
+
+- : plus-unique D D id/nat-refl.
+- : plus-unique (plus-s D) (plus-s D') DidS <- plus-unique D D' Did <- id/nat-s-cong Did DidS.
+
+%worlds () (plus-unique _ _ _).
+%total D (plus-unique D _ _).
+
+
+plus-respects-id : plus N1 N2 N3 -> id/nat N1 N1' -> id/nat N2 N2' -> id/nat N3 N3' -> plus N1' N2' N3' -> type.
+
+%mode plus-respects-id +X1 +X2 +X3 +X4 -X5.
+
+- : plus-respects-id D id/nat-refl id/nat-refl id/nat-refl  D.
+
+%worlds () (plus-respects-id _ _ _ _ _).
+%total {} (plus-respects-id _ _ _ _ _).
+
+
+
+id/nat-sym : id/nat N1 N2 -> id/nat N2 N1 -> type.
+
+%mode id/nat-sym +X1 -X2.
+
+- : id/nat-sym id/nat-refl  id/nat-refl.
+
+%worlds () (id/nat-sym _ _).
+%total {} (id/nat-sym _ _).
+
+
+plus-assoc : plus A B AB -> plus B C BC -> plus AB C ABC -> plus A BC ABC -> type.
+
+%mode plus-assoc +X1 +X2 +X3 -X4.
+
+- : plus-assoc plus-z DplusB-C  DplusB-C' Dplus
+      <- plus-unique DplusB-C DplusB-C' Did
+      <- plus-respects-id plus-z id/nat-refl id/nat-refl Did Dplus.
+
+- : plus-assoc (plus-s DplusA'-B) DplusB-C (plus-s DplusA'B-C)  (plus-s DplusA'-BC)
+      <- plus-assoc DplusA'-B DplusB-C DplusA'B-C DplusA'-BC.
+
+%worlds () (plus-assoc _ _ _ _).
+%total D (plus-assoc D _ _ _).
+
+
+plus-assoc2 : plus A B AB -> plus B C BC -> plus AB C ABC -> plus A BC ABC -> type.
+
+%mode plus-assoc2 +X1 +X2 -X3 +X4.
+
+- : plus-assoc2 D1 D2 D3' D4 <- plus-exists _ _ D3 <- plus-assoc D1 D2 D3 D4' <- plus-unique D4 D4' Did
+     <- id/nat-sym Did Did' <- plus-respects-id D3 id/nat-refl id/nat-refl Did' D3'.
+
+%worlds () (plus-assoc2 _ _ _ _).
+%total {} (plus-assoc2 _ _ _ _).
+
+
+
+lemma : plus N1 N2 Nsum	 -> plus Ndiff1 N1 N1' -> plus Ndiff2 N2 N2' -> plus N1' N2' Nsum'
+      -> plus Ndiff Nsum  Nsum' -> type.
+
+%mode lemma +X1 +X2 +X3 +X4 -X5.
+
+- : lemma (D : plus N1 N2 Nsum) (D1pre : plus Ndiff1 N1 N1') (D2pre : plus Ndiff2 N2 N2') (D' : plus N1' N2' Nsum') Dres'
+     <- plus-commute D1pre D1
+     <- plus-commute D2pre D2
+     <- plus-exists Ndiff1 N2' (Ddiff1+2' : plus Ndiff1 N2' Ndiff1+2')
+     <- plus-assoc D1 Ddiff1+2' D' (Dassoc : plus N1 Ndiff1+2' Nsum')
+     <- plus-commute D2 (D2' : plus Ndiff2 N2 N2')
+     <- plus-exists Ndiff1 Ndiff2 (Ddiff1+2 : plus Ndiff1 Ndiff2 Ndiff1+2)
+     <- plus-assoc2 Ddiff1+2 D2' (Dassoc' : plus Ndiff1+2 N2 Ndiff1+2') Ddiff1+2'
+     <- plus-commute Dassoc' (Dassoc'' : plus N2 Ndiff1+2 Ndiff1+2')
+     <- plus-assoc2 D Dassoc'' Dres Dassoc
+     <- plus-commute Dres Dres'.
+
+%worlds () (lemma _ _ _ _ _).
+%total {}  (lemma _ _ _ _ _).
+
+
+
+
+size : o -> nat -> type.
+size-bot : size bot (s z).
+size-neg : {phi:o} {n:nat} size phi n -> size (neg phi) (s n).
+size-and : {phi:o} {psi:o} {n1:nat} {n2:nat} {n3:nat} plus n1 n2 n3 -> size phi n1 -> size psi n2 -> size (and phi psi) (s n3).
+size-or : {phi:o} {psi:o} {n1:nat} {n2:nat} {n3:nat} plus n1 n2 n3 -> size phi n1 -> size psi n2 -> size (or phi psi) (s n3).
+size-imp : {phi:o} {psi:o} {n1:nat} {n2:nat} {n3:nat} plus n1 n2 n3 -> size phi n1 -> size psi n2 -> size (imp phi psi) (s n3).
+
+
+%mode size +Phi -N.
+%block size-block : block {p:o} {dp:size p (s z)}.
+%worlds (size-block) (size _ _).
+%total Phi (size Phi _).
+
+
+
+
+size-at-least-one : size Phi N -> plus (s z) N' N -> type.
+%mode size-at-least-one +X1 -X2.
+
+- : size-at-least-one _ (plus-s plus-z).
+
+%worlds (size-block) (size-at-least-one _ _).
+%total {} (size-at-least-one _ _).
+
+
+
+
+
+subst-size : {Phi : o} ({p : o} size p (s z) -> size (F p) N) -> size (F Phi) N' -> plus Ndiff N N' -> type.
+%mode subst-size +E' +D1 +D2 -DL.
+
+
+case-var : subst-size E'
+   ([p:o] [dp: size p (s z)] dp)
+   D
+   Dplus'
+   <- size-at-least-one D Dplus
+   <- plus-commute Dplus Dplus'.
+   
+case-bot : subst-size E'
+   ([p:o] [dp: size p (s z)] size-bot)
+   size-bot
+   plus-z.
+
+
+
+case-neg : subst-size E'
+   ([p:o] [dp: size p (s z)]
+      size-neg (E1 p) N1
+      ((D1 p dp) : size (E1 p) N1)
+   )
+   (size-neg (E1 E') N1' (D1': size (E1 E') N1'))
+   DplusRes
+   <- subst-size E' D1
+      (D1' : size (E1 E') N1')
+      (Dplus1 : plus Ndiff1 N1 N1')
+   <- plus-s-rh Dplus1 (DplusRes : plus Ndiff1 (s N1) (s N1')).
+
+
+
+
+case-and : subst-size E'
+   ([p:o] [dp: size p (s z)] 
+      size-and (E1 p) (E2 p) N1 N2 Nsum 
+      (Dplus : plus N1 N2 Nsum)
+      ((D1 p dp) : size (E1 p) N1)
+      ((D2 p dp) : size (E2 p) N2)
+      )
+   (size-and (E1 E') (E2 E') N1' N2' Nsum'
+      (Dplus' : plus N1' N2' Nsum')
+      (D1' : size (E1 E') N1')
+      (D2' : size (E2 E') N2'))
+   DplusRes'
+   <- subst-size E' D1 
+      (D1' : size (E1 E') N1')
+      (Dplus1 : plus Ndiff1 N1 N1')
+   <- subst-size E' D2 
+      (D2' : size (E2 E') N2')
+      (Dplus2 : plus Ndiff2 N2 N2')
+   <- lemma Dplus Dplus1 Dplus2 Dplus' DplusRes
+   <- plus-s-rh DplusRes DplusRes'.
+
+
+
+case-or : subst-size E'
+   ([p:o] [dp: size p (s z)] 
+      size-or (E1 p) (E2 p) N1 N2 Nsum 
+      (Dplus : plus N1 N2 Nsum)
+      ((D1 p dp) : size (E1 p) N1)
+      ((D2 p dp) : size (E2 p) N2)
+      )
+   (size-or (E1 E') (E2 E') N1' N2' Nsum'
+      (Dplus' : plus N1' N2' Nsum')
+      (D1' : size (E1 E') N1')
+      (D2' : size (E2 E') N2'))
+   DplusRes'
+   <- subst-size E' D1 
+      (D1' : size (E1 E') N1')
+      (Dplus1 : plus Ndiff1 N1 N1')
+   <- subst-size E' D2 
+      (D2' : size (E2 E') N2')
+      (Dplus2 : plus Ndiff2 N2 N2')
+   <- lemma Dplus Dplus1 Dplus2 Dplus' DplusRes
+   <- plus-s-rh DplusRes DplusRes'.
+
+
+case-imp : subst-size E'
+   ([p:o] [dp: size p (s z)] 
+      size-imp (E1 p) (E2 p) N1 N2 Nsum 
+      (Dplus : plus N1 N2 Nsum)
+      ((D1 p dp) : size (E1 p) N1)
+      ((D2 p dp) : size (E2 p) N2)
+      )
+   (size-imp (E1 E') (E2 E') N1' N2' Nsum'
+      (Dplus' : plus N1' N2' Nsum')
+      (D1' : size (E1 E') N1')
+      (D2' : size (E2 E') N2'))
+   DplusRes'
+   <- subst-size E' D1 
+      (D1' : size (E1 E') N1')
+      (Dplus1 : plus Ndiff1 N1 N1')
+   <- subst-size E' D2 
+      (D2' : size (E2 E') N2')
+      (Dplus2 : plus Ndiff2 N2 N2')
+   <- lemma Dplus Dplus1 Dplus2 Dplus' DplusRes
+   <- plus-s-rh DplusRes DplusRes'.
+
+
+
+%block ssblock : block {p : o} 
+                    {dp : size p (s z)}
+                     {_ : {Phi : o} subst-size Phi ([q:o] [dq: size q (s z)] dp) dp plus-z}.
+%worlds (ssblock) (subst-size _ _ _ _).
+%total D (subst-size _ D _ _).

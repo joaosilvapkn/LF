@@ -1,0 +1,177 @@
+i : type.
+o : type.
+eq : i -> i -> o.
+bot : o.
+and : o -> o -> o.
+or : o -> o -> o.
+imp : o -> o -> o.
+neg : o -> o.
+all : (i -> o) -> o.
+exs : (i -> o) -> o.
+
+true : o -> type.
+eq-i : {t:i} (true (eq t t)).
+eq-e : {t:i} {s:i} {P:i -> o} (true (eq t s)) -> (true (P t)) -> (true (P s)).
+and-i : {phi:o} {psi:o} (true phi) -> (true psi) -> (true (and phi psi)).
+and-el : {phi:o} {psi:o} (true (and phi psi)) -> true psi.
+and-er : {phi:o} {psi:o} (true (and phi psi)) -> true phi.
+or-il : {phi:o} {psi:o}  (true psi) -> (true (or phi psi)).
+or-ir : {phi:o} {psi:o}  (true phi) -> (true (or phi psi)).
+or-e : {phi :o} {psi:o} {sigma:o} (true (or phi psi)) -> ((true phi) -> (true sigma)) -> ((true psi) -> (true sigma)) -> (true sigma).
+imp-i : {phi:o} {psi:o} ((true phi) -> (true psi)) -> true (imp phi psi).
+imp-e : {phi:o} {psi:o} true (imp phi psi) -> (true phi) -> (true psi).
+neg-i : {phi:o} ((true phi) -> (true bot)) -> true (neg phi).
+neg-e : {phi:o} (true phi) -> (true (neg phi)) -> true bot.
+raa : {phi:o} (true (neg (neg phi))) -> true phi.
+all-i : {F:i -> o} ({x:i} (true (F x))) -> true (all ([x:i] (F x))).
+all-e : {F:i -> o} {t:i} (true (all ([x:i] (F x)))) -> (true (F t)).
+exs-i : {F:i -> o} {t:i} (true (F t)) -> (true (exs ([x:i] (F x)))).
+exs-e : {F:i -> o} {phi:o} (true (exs ([x:i] (F x)))) -> ({x:i} (true (F x)) -> (true phi)) -> (true phi).
+
+true_I : o -> type.
+eq-i_I : {t:i} (true_I (eq t t)).
+eq-e_I : {t:i} {s:i} {P:i -> o} (true_I (eq t s)) -> (true_I (P t)) -> (true_I (P s)).
+and-i_I : {phi:o} {psi:o} (true_I phi) -> (true_I psi) -> (true_I (and phi psi)).
+and-el_I : {phi:o} {psi:o} (true_I (and phi psi)) -> true_I psi.
+and-er_I : {phi:o} {psi:o} (true_I (and phi psi)) -> true_I phi.
+or-il_I : {phi:o} {psi:o}  (true_I psi) -> (true_I (or phi psi)).
+or-ir_I : {phi:o} {psi:o}  (true_I phi) -> (true_I (or phi psi)).
+or-e_I : {phi :o} {psi:o} {sigma:o} (true_I (or phi psi)) -> ((true_I phi) -> (true_I sigma)) -> ((true_I psi) -> (true_I sigma)) -> (true_I sigma).
+imp-i_I : {phi:o} {psi:o} ((true_I phi) -> (true_I psi)) -> true_I (imp phi psi).
+imp-e_I : {phi:o} {psi:o} true_I (imp phi psi) -> (true_I phi) -> (true_I psi).
+neg-i_I : {phi:o} ((true_I phi) -> (true_I bot)) -> true_I (neg phi).
+neg-e_I : {phi:o} (true_I phi) -> (true_I (neg phi)) -> true_I bot.
+efq_I : {phi:o} (true_I bot) -> (true_I phi).
+all-i_I : {F:i -> o} ({x:i} (true_I (F x))) -> true_I (all ([x:i] (F x))).
+all-e_I : {F:i -> o} {t:i} (true_I (all ([x:i] (F x)))) -> (true_I (F t)).
+exs-i_I : {F:i -> o} {t:i} (true_I (F t)) -> (true_I (exs ([x:i] (F x)))).
+exs-e_I : {F:i -> o} {phi:o} (true_I (exs ([x:i] (F x)))) -> ({x:i} (true_I (F x)) -> (true_I phi)) -> (true_I phi).
+
+
+
+gdel : o -> o -> type.
+
+gdel_eq  : {t:i} {s:i} gdel (eq t s) (neg (neg (eq t s))).
+gdel_bot : gdel bot (neg (neg bot)).
+gdel_neg : {phi:o} {phiN:o} gdel phi phiN -> gdel (neg phi) (neg phiN).
+gdel_and : {phi:o} {psi:o} {phiN:o} {psiN:o} gdel phi phiN -> gdel psi psiN -> gdel (and phi psi) (and phiN psiN).
+gdel_or  : {phi:o} {psi:o} {phiN:o} {psiN:o} gdel phi phiN -> gdel psi psiN -> gdel (or phi psi) (neg (and (neg phiN) (neg psiN))).
+gdel_imp : {phi:o} {psi:o} {phiN:o} {psiN:o} gdel phi phiN -> gdel psi psiN -> gdel (imp phi psi) (imp phiN psiN).
+gdel_all : {F:i -> o} {FN:i -> o} ({x:i} gdel (F x) (FN x)) -> gdel (all ([x:i] F x)) (all ([x:i] FN x)).
+gdel_exs : {F:i -> o} {FN:i -> o}
+            ({x:i} gdel (F x) (FN x))
+            -> gdel (exs ([x:i] F x)) (neg (all ([x:i] neg (FN x)))).
+
+
+%block b_fol_terms : block {x:i}.
+
+
+%mode gdel +Phi -PhiN.
+%worlds (b_fol_terms) (gdel _ _).
+%total Phi (gdel Phi _).
+
+
+stability : {Phi:o} {PhiN:o} gdel Phi PhiN -> true_I (neg (neg PhiN)) -> true_I PhiN -> type.
+
+
+stability_eq : {T:i} {S:i} {gd : gdel (eq T S) (neg (neg (eq T S)))} {D_nn_nn_eq : true_I (neg (neg (neg (neg (eq T S)))))}
+                stability (eq T S) (neg (neg (eq T S))) gd D_nn_nn_eq
+                (neg-i_I (neg (eq T S)) ([xi: true_I (neg (eq T S))]
+                   neg-e_I (neg (neg (neg (eq T S))))
+                      (neg-i_I (neg (neg (eq T S))) ([xi': true_I (neg (neg (eq T S)))]
+                         neg-e_I (neg (eq T S)) xi xi'))
+                      D_nn_nn_eq)).
+
+
+
+stability_bot : {gd : gdel bot (neg (neg bot))} {D_nn_nn_bot : true_I (neg (neg (neg (neg bot))))}
+                stability bot (neg (neg bot)) gd D_nn_nn_bot
+                (neg-i_I (neg bot) ([xi: true_I (neg bot)]
+                   neg-e_I (neg (neg (neg bot)))
+                      (neg-i_I (neg (neg bot)) ([xi': true_I (neg (neg bot))]
+                         neg-e_I (neg bot) xi xi'))
+                      D_nn_nn_bot)).
+
+stability_neg : {Phi:o} {PhiN:o} {D_gd: gdel Phi PhiN} 
+                 {D_nn_n_phiN : true_I (neg (neg (neg PhiN)))}
+                 stability (neg Phi) (neg PhiN) (gdel_neg Phi PhiN D_gd) D_nn_n_phiN
+                 (neg-i_I PhiN ([xi: true_I PhiN]
+                    neg-e_I (neg (neg PhiN))
+                       (neg-i_I (neg PhiN) ([h_neg: true_I (neg PhiN)]
+                          neg-e_I PhiN xi h_neg))
+                       D_nn_n_phiN)).
+
+
+stability_and :  {D_gd_A: gdel Phi PhiN} {D_gd_B: gdel Psi PsiN}
+                 {D_nn_and : true_I (neg (neg (and PhiN PsiN)))}
+                 stability (and Phi Psi) (and PhiN PsiN) (gdel_and Phi Psi PhiN PsiN D_gd_A D_gd_B) D_nn_and
+                    (and-i_I PhiN PsiN D_i_PhiN D_i_PsiN)           
+                  <- stability Phi PhiN D_gd_A
+                     (neg-i_I (neg PhiN) ([h_nA: true_I (neg PhiN)]
+                        neg-e_I (neg (and PhiN PsiN))
+                           (neg-i_I (and PhiN PsiN) ([h_and: true_I (and PhiN PsiN)]
+                              neg-e_I PhiN (and-er_I PhiN PsiN h_and) h_nA))
+                           D_nn_and))
+                     (D_i_PhiN)          
+                  <- stability Psi PsiN D_gd_B
+                     (neg-i_I (neg PsiN) ([h_nB: true_I (neg PsiN)]
+                        neg-e_I (neg (and PhiN PsiN))
+                           (neg-i_I (and PhiN PsiN) ([h_and: true_I (and PhiN PsiN)]
+                              neg-e_I PsiN (and-el_I PhiN PsiN h_and) h_nB))
+                           D_nn_and))
+                     (D_i_PsiN).
+
+
+stability_or :  {D_gd_A: gdel Phi PhiN} {D_gd_B: gdel Psi PsiN}
+                {D_nn_and: true_I (neg (neg (neg (and (neg PhiN) (neg PsiN)))))}
+                stability (or Phi Psi) (neg (and (neg PhiN) (neg PsiN))) (gdel_or Phi Psi PhiN PsiN D_gd_A D_gd_B) D_nn_and
+                  (neg-i_I (and (neg PhiN) (neg PsiN)) ([xi:true_I (and (neg PhiN) (neg PsiN)) ] 
+                  neg-e_I (neg(neg(and (neg PhiN) (neg PsiN))))  
+                 (neg-i_I (neg (and (neg PhiN) (neg PsiN))) 
+                 ([xi': true_I (neg (and (neg PhiN) (neg PsiN)))] neg-e_I (and (neg PhiN) (neg PsiN)) xi xi')) D_nn_and)).
+
+
+stability_imp :  {D_gd_A: gdel Phi PhiN} {D_gd_B: gdel Psi PsiN}
+                 {D_nn_imp: true_I (neg (neg (imp PhiN PsiN)))}
+                 stability (imp Phi Psi) (imp PhiN PsiN) (gdel_imp Phi Psi PhiN PsiN D_gd_A D_gd_B) D_nn_imp
+                    (imp-i_I PhiN PsiN ([xi: true_I PhiN] DD xi))
+                 <- ({xi: true_I PhiN} 
+                       stability Psi PsiN D_gd_B
+                          (neg-i_I (neg PsiN) ([h_nPsiN: true_I (neg PsiN)]
+                             neg-e_I (neg (imp PhiN PsiN))
+                                (neg-i_I (imp PhiN PsiN) ([h_imp: true_I (imp PhiN PsiN)]
+                                   neg-e_I PsiN (imp-e_I PhiN PsiN h_imp xi) h_nPsiN))
+                                D_nn_imp))
+                          (DD xi)).
+
+stability_all :   {F: i -> o} {FN: i -> o} {DD: {x:i} true_I (FN x)}
+                  {D_gd_F: {x:i} gdel (F x) (FN x)}
+                  {D_nn_all: true_I (neg (neg (all ([x:i] FN x))))}
+                  ({x:i} stability (F x) (FN x) (D_gd_F x)
+                     (neg-i_I (neg (FN x)) ([h_nFN: true_I (neg (FN x))]
+                        neg-e_I (neg (all ([y:i] FN y)))
+                           (neg-i_I (all ([y:i] FN y)) ([h_all: true_I (all ([y:i] FN y))]
+                              neg-e_I (FN x) (all-e_I FN x h_all) h_nFN))
+                           D_nn_all))
+                     (DD x))
+                  -> stability (all ([x:i] F x)) (all ([x:i] FN x))
+                        (gdel_all F FN D_gd_F) D_nn_all
+                        (all-i_I FN ([x:i] DD x)).
+
+
+stability_exs : {F: i -> o} {FN: i -> o} {D_gd_F: {x:i} gdel (F x) (FN x)}
+                 {D_nn_exs: true_I (neg (neg (neg (all ([x:i] neg (FN x))))))}
+                 stability (exs ([x:i] F x)) (neg (all ([x:i] neg (FN x))))
+                    (gdel_exs F FN D_gd_F) D_nn_exs
+                    (neg-i_I (all ([x:i] neg (FN x))) ([xi: true_I (all ([x:i] neg (FN x)))]
+                       neg-e_I (neg (neg(all ([x:i] neg (FN x)))))
+                          (neg-i_I (neg (all ([x:i] neg (FN x)))) ([xi': true_I (neg (all ([x:i] neg (FN x))))]
+                             neg-e_I (all ([x:i] neg (FN x))) xi xi')) D_nn_exs)).
+
+
+%block b_var : block {x:i}.
+%block b_hyp : some {AN:o} block {hi: true_I AN}.
+
+%mode stability +Phi +PhiN +D_gd +D_double_neg -D_clean.
+%worlds (b_var | b_hyp) (stability _ _ _ _ _).
+%total Phi (stability Phi _ _ _ _).

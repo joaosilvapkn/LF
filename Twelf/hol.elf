@@ -1,0 +1,196 @@
+holtype : type.
+i : holtype.
+o : holtype.
+
+obj : holtype -> type.
+arrow : holtype -> holtype -> holtype.
+
+eq : {s:holtype} obj (arrow s (arrow s o)).
+bot : obj o.
+neg : obj (arrow o o).
+and : obj (arrow o (arrow o o)).
+or : obj (arrow o (arrow o o)).
+imp : obj (arrow o (arrow o o)).
+all : {s:holtype} obj (arrow (arrow s o) o).
+exs : {s:holtype} obj (arrow (arrow s o) o).
+lam : {s:holtype} {t:holtype} ((obj s) -> (obj t)) -> obj(arrow s t).
+app : {s:holtype} {t:holtype} (obj (arrow s t)) -> (obj s) -> (obj t).
+
+
+true : (obj o) -> type.
+
+eq-i : {s:holtype} {e: obj s} true (app s o (app s (arrow s o) (eq s) e) e).
+
+eq-e : {s:holtype} {F: (obj s) -> (obj o)} {e: obj s} {e': obj s} (true (app s o (app s (arrow s o) (eq s) e) e')) -> (true (F e)) -> (true (F e')). 
+
+eq-beta : {s:holtype} {t:holtype} {F : (obj s) -> (obj t)} {e : obj s} true (app t o (app t (arrow t o) (eq t) (app s t (lam s t F) e)) (F e)).
+
+eq-lam : {s:holtype} {t:holtype} {F: (obj s) -> (obj t)} {F': (obj s) -> (obj t)} ({x: obj s} true (app t o (app t (arrow t o) (eq t) (F x)) (F' x))) ->
+        (true (app (arrow s t) o (app (arrow s t) (arrow (arrow s t) o) (eq (arrow s t)) (lam s t F)) (lam s t F'))).
+
+eq-app1 : {s:holtype} {t:holtype} {e: obj (arrow s t)} {e': obj (arrow s t)} {m : obj s} 
+        (true (app (arrow s t) o (app (arrow s t) (arrow (arrow s t) o) (eq (arrow s t)) e) e')) -> true (app t o (app t (arrow t o) (eq t) (app s t e m)) (app s t e' m)).
+        
+eq-app2 : {s:holtype} {t:holtype} {e: obj (arrow s t)} {m: obj s} {m' : obj s} 
+        (true (app s o (app s (arrow s o) (eq s) m) m')) -> true (app t o (app t (arrow t o) (eq t) (app s t e m)) (app s t e m')).
+
+eq-eta : {s:holtype} {t:holtype} {e: obj (arrow s t)} 
+        true (app (arrow s t ) o (app (arrow s t) (arrow (arrow s t) o) (eq (arrow s t)) (lam s t ([x:obj s] app s t e x))) e).
+
+
+and-i : {e: obj o} {e': obj o} true e -> true e' -> true (app o o (app o (arrow o o) and e) e').
+and-el : {e: obj o} {e': obj o} true (app o o (app o (arrow o o) and e) e') -> true e'.
+and-er : {e: obj o} {e': obj o} true (app o o (app o (arrow o o) and e) e') -> true e.
+
+
+or-il : {e: obj o} {e': obj o} true e' -> true (app o o (app o (arrow o o) or e) e').
+or-ir : {e: obj o} {e': obj o} true e -> true (app o o (app o (arrow o o) or e) e').
+or-e : {e: obj o} {e': obj o} {m: obj o} true (app o o (app o (arrow o o) or e) e') -> (true e -> true m) -> (true e' -> true m) -> true m.
+
+imp-i : {e: obj o} {e': obj o} (true e -> true e') -> true (app o o (app o (arrow o o) imp e) e').
+imp-e : {e: obj o} {e': obj o} true (app o o (app o (arrow o o) imp e) e') -> true e -> true e'.
+
+neg-i : {e: obj o} (true e -> true bot) -> true (app o o neg e).
+neg-e : {e: obj o} true e -> true (app o o neg e) -> true bot.
+raa : {e: obj o} true (app o o neg (app o o neg e)) -> true e.
+
+all-i : {t:holtype} {F: (obj t) -> (obj o)} ({x:obj t} true (F x)) -> true (app (arrow t o) o (all t) (lam t o ([x:obj t] F x))).
+all-e : {t:holtype} {F: (obj t) -> (obj o)} {p: obj t} true (app (arrow t o) o (all t) (lam t o ([x:obj t] F x))) -> true (F p).
+
+some-i : {t:holtype} {F: (obj t) -> (obj o)} {p: obj t} (true (F p)) -> true (app (arrow t o) o (exs t) (lam t o ([x:obj t] F x))).
+some-e : {t:holtype} {F: (obj t) -> (obj o)} {p: obj o} (true (app (arrow t o) o (exs t) (lam t o ([x:obj t] F x)))) -> ({x: obj t} (true (F x)) -> true p) -> true p.
+
+
+true_I : (obj o) -> type.
+
+eq-i_I : {s:holtype} {e:obj s} true_I (app s o (app s (arrow s o) (eq s) e) e).
+
+eq-e_I : {s:holtype} {F:(obj s) -> (obj o)} {e:obj s} {e':obj s} (true_I (app s o (app s (arrow s o) (eq s) e) e')) -> (true_I (F e)) -> (true_I (F e')).
+
+eq-beta_I : {s:holtype} {t:holtype} {F:(obj s) -> (obj t)} {e:obj s} true_I (app t o (app t (arrow t o) (eq t) (app s t (lam s t F) e)) (F e)).
+
+eq-lam_I : {s:holtype} {t:holtype} {F:(obj s) -> (obj t)} {F':(obj s) -> (obj t)} ({x:obj s} true_I (app t o (app t (arrow t o) (eq t) (F x)) (F' x))) ->
+         (true_I (app (arrow s t) o (app (arrow s t) (arrow (arrow s t) o) (eq (arrow s t)) (lam s t F)) (lam s t F'))).
+
+eq-app1_I : {s:holtype} {t:holtype} {e:obj (arrow s t)} {e':obj (arrow s t)} {m:obj s} 
+        (true_I (app (arrow s t) o (app (arrow s t) (arrow (arrow s t) o) (eq (arrow s t)) e) e')) -> true_I (app t o (app t (arrow t o) (eq t) (app s t e m)) (app s t e' m)).
+
+eq-app2_I : {s:holtype} {t:holtype} {e:obj (arrow s t)} {m:obj s} {m':obj s} 
+        (true_I (app s o (app s (arrow s o) (eq s) m) m')) -> true_I (app t o (app t (arrow t o) (eq t) (app s t e m)) (app s t e m')).
+
+eq-eta_I : {s:holtype} {t:holtype} {e: obj (arrow s t)} 
+        true_I (app (arrow s t ) o (app (arrow s t) (arrow (arrow s t) o) (eq (arrow s t)) (lam s t ([x:obj s] app s t e x))) e).
+
+and-i_I : {e:obj o} {e':obj o} true_I e -> true_I e' -> true_I (app o o (app o (arrow o o) and e) e').
+and-el_I : {e:obj o} {e':obj o} true_I (app o o (app o (arrow o o) and e) e') -> true_I e.
+and-er_I : {e:obj o} {e':obj o} true_I (app o o (app o (arrow o o) and e) e') -> true_I e.
+
+or-il_I : {e:obj o} {e':obj o} true_I e' -> true_I (app o o (app o (arrow o o) or e) e').
+or-ir_I : {e:obj o} {e':obj o} true_I e -> true_I (app o o (app o (arrow o o) or e) e').
+or-e_I : {e:obj o} {e':obj o} {m:obj o} true_I (app o o (app o (arrow o o) or e) e') -> (true_I e -> true_I m) -> (true_I e' -> true_I m) -> true_I m.
+
+imp-i_I : {e:obj o} {e':obj o} (true_I e -> true_I e') -> true_I (app o o (app o (arrow o o) imp e) e').
+imp-e_I : {e:obj o} {e':obj o} true_I (app o o (app o (arrow o o) imp e) e') -> true_I e -> true_I e'.
+
+neg-i_I : {e:obj o} (true_I e -> true_I bot) -> true_I (app o o neg e).
+neg-e_I : {e:obj o} true_I e -> true_I (app o o neg e) -> true_I bot.
+efq_I : {e:obj o} true_I bot -> true_I e.
+
+all-i_I : {t:holtype} {F:(obj t) -> (obj o)} ({x:obj t} true_I (F x)) -> true_I (app (arrow t o) o (all t) (lam t o ([x:obj t] F x))).
+all-e_I : {t:holtype} {F:(obj t) -> (obj o)} {p:obj t} true_I (app (arrow t o) o (all t) (lam t o ([x:obj t] F x))) -> true_I (F p).
+some-i_I : {t:holtype} {F:(obj t) -> (obj o)} {p:obj t} true_I (F p) -> true_I (app (arrow t o) o (exs t) (lam t o ([x:obj t] F x))).
+some-e_I : {t:holtype} {F:(obj t) -> (obj o)} {p:obj o} true_I (app (arrow t o) o (exs t) (lam t o ([x:obj t] F x))) -> ({x:obj t} (true_I (F x)) -> true_I p) -> true_I p.
+
+
+RB: {s:holtype} (obj s) -> (obj s) -> type.
+
+RB_beta : {s:holtype} {t:holtype} {F : (obj s) -> (obj t)} {e : obj s} RB t (app s t (lam s t F) e) (F e).
+RB_app1 : {s:holtype} {t:holtype} {e: obj (arrow s t)} {e': obj (arrow s t)} {m: obj s} (RB (arrow s t) e e') -> (RB t (app s t e m) (app s t e' m)).
+RB_app2 : {s:holtype} {t:holtype} {e: obj (arrow s t)} {m: obj s} {m': obj s} (RB s m m') -> (RB t (app s t e m) (app s t e m')).
+RB_lam : {s:holtype} {t:holtype} {F: (obj s) -> (obj t)} {F': (obj s) -> (obj t)} ({x: obj s} (RB t (F x) (F' x))) -> (RB (arrow s t) (lam s t F) (lam s t F')).
+
+RB_eq :  {s:holtype} (obj s) -> (obj s) -> type.
+RB_eq_beta : {s:holtype} {e : obj s} {e' : obj s} (RB s e e') -> (RB_eq s e e').
+RB_eq_refl : {s:holtype} {e : obj s} (RB_eq s e e).
+RB_eq_sym : {s:holtype} {e : obj s} {e' : obj s} (RB_eq s e e') -> (RB_eq s e' e).
+RB_eq_trans : {s:holtype} {e : obj s} {e' : obj s} {e'' : obj s} (RB_eq s e e') -> (RB_eq s e' e'') -> (RB_eq s e e'').
+RB_eq_eta : {s:holtype} {t:holtype} {e: obj (arrow s t)} (RB_eq (arrow s t) (lam s t ([x:obj s] app s t e x)) e).
+
+
+
+RB_EQ_APP1 : {s:holtype} {t:holtype} {e:obj (arrow s t)} {e':obj (arrow s t)} {u:obj s} RB_eq (arrow s t) e e' -> RB_eq t (app s t e u) (app s t e' u) -> type.
+
+RB_EQ_APP1_beta : {s:holtype} {t:holtype} {e:obj (arrow s t)} {e':obj (arrow s t)} {u:obj s} {R: RB (arrow s t) e e'} 
+        RB_EQ_APP1 s t e e' u (RB_eq_beta (arrow s t) e e' R) (RB_eq_beta t (app s t e u) (app s t e' u) (RB_app1 s t e e' u R)).
+
+
+RB_EQ_APP1_refl : {s:holtype} {t:holtype} {e:obj (arrow s t)} {u:obj s} 
+        RB_EQ_APP1 s t e e u (RB_eq_refl (arrow s t) e) (RB_eq_refl t (app s t e u)).
+
+RB_EQ_APP1_sym : {s:holtype} {t:holtype} {e:obj (arrow s t)} {e':obj (arrow s t)} {u:obj s} {R: RB_eq (arrow s t) e' e} {R2: RB_eq t (app s t e' u) (app s t e u)} 
+        RB_EQ_APP1 s t e' e u R R2 -> RB_EQ_APP1 s t e e' u (RB_eq_sym (arrow s t) e' e R) (RB_eq_sym t (app s t e' u) (app s t e u) R2).
+
+RB_EQ_APP1_trans : {s:holtype} {t:holtype} {e1:obj (arrow s t)} {e2:obj (arrow s t)} {e3:obj (arrow s t)} {u:obj s} {R1: RB_eq (arrow s t) e1 e2} {R2: RB_eq (arrow s t) e2 e3} 
+        {F1: RB_eq t (app s t e1 u) (app s t e2 u)} {F2: RB_eq t (app s t e2 u) (app s t e3 u)} RB_EQ_APP1 s t e1 e2 u R1 F1 -> RB_EQ_APP1 s t e2 e3 u R2 F2 ->
+        RB_EQ_APP1 s t e1 e3 u (RB_eq_trans (arrow s t) e1 e2 e3 R1 R2) (RB_eq_trans t (app s t e1 u) (app s t e2 u) (app s t e3 u) F1 F2). 
+
+RB_EQ_APP1_eta : {s:holtype} {t:holtype} {e:obj (arrow s t)} {u:obj s} RB_EQ_APP1 s t (lam s t ([x:obj s] app s t e x)) e u 
+                    (RB_eq_eta s t e) (RB_eq_beta t (app s t (lam s t ([x:obj s] app s t e x)) u) (app s t e u) (RB_beta s t ([x:obj s] app s t e x) u)).
+
+%mode RB_EQ_APP1 +S +T +E +E' +U +R -R2.
+%block b_var : some {T:holtype} block {x:obj T}.
+%worlds (b_var) (RB_EQ_APP1 _ _ _ _ _ _ _).
+%total R (RB_EQ_APP1 _ _ _ _ _ R _).
+
+
+soundness : {s:holtype} {E:obj s} {E':obj s} RB s E E' -> true (app s o (app s (arrow s o) (eq s) E) E') -> type.
+
+case_beta : {s:holtype} {t:holtype} {F: obj s -> obj t} {e: obj s} soundness t (app s t (lam s t F) e) (F e) (RB_beta s t F e)  (eq-beta s t F e).
+
+case_app1 : {s:holtype} {t:holtype} {e: obj (arrow s t)} {e': obj (arrow s t)} {m:obj s}  {D_rb : RB (arrow s t) e e'}
+            {D_true : true (app (arrow s t) o (app (arrow s t) (arrow (arrow s t) o) (eq (arrow s t)) e) e')}
+            soundness (arrow s t) e e' D_rb D_true 
+            -> soundness t (app s t e m) (app s t e' m) (RB_app1 s t e e' m D_rb) (eq-app1 s t e e' m D_true).
+
+case_app2 : {s:holtype} {t:holtype} {e: obj (arrow s t)} {m: obj s} {m': obj s} {D_rb : RB s m m'}
+            {D_true : true (app s o (app s (arrow s o) (eq s) m) m')}
+            soundness s m m' D_rb D_true
+            -> soundness t (app s t e m) (app s t e m') (RB_app2 s t e m m' D_rb) (eq-app2 s t e m m' D_true).
+
+case_lam : {s:holtype} {t:holtype} {F:obj s -> obj t} {F':obj s -> obj t} {D_rb : {x:obj s} RB t (F x) (F' x)}
+            {D_true : {x:obj s} true (app t o (app t (arrow t o) (eq t) (F x)) (F' x))}
+            ({x:obj s} soundness t (F x) (F' x) (D_rb x) (D_true x))
+            -> soundness (arrow s t) (lam s t F) (lam s t F') (RB_lam s t F F' D_rb) (eq-lam s t F F' D_true).
+
+%mode soundness +S +E +E' +D_rb -D_true.
+%block b_var : some {T:holtype} block {x:obj T}.
+%worlds (b_var) (soundness _ _ _ _ _).
+%total D_rb (soundness _ _ _ D_rb _).
+
+ 
+soundness_eq : {s:holtype} {E:obj s} {E':obj s} RB_eq s E E'
+             -> true (app s o (app s (arrow s o) (eq s) E) E') -> type.
+
+case_eq_beta : {s:holtype} {e:obj s} {e':obj s} {D_rb:RB s e e'} {D_true:true (app s o (app s (arrow s o) (eq s) e) e')} soundness s e e' D_rb D_true -> soundness_eq s e e' (RB_eq_beta s e e' D_rb) D_true.
+
+case_eq_refl : {s:holtype} {e: obj s} soundness_eq s e e (RB_eq_refl s e) (eq-i s e).
+
+case_eq_sym : {s:holtype} {e: obj s} {e': obj s} {D_rb: RB_eq s e e'} {D_true: true (app s o (app s (arrow s o) (eq s) e) e')}
+                (soundness_eq s e e' D_rb D_true) -> (soundness_eq s e' e (RB_eq_sym s e e' D_rb) 
+                (eq-e s ([x:obj s]  app s o (app s (arrow s o) (eq s) x) e) e e' D_true  (eq-i s e) )).
+
+case_eq_trans : {s:holtype} {e: obj s} {e': obj s} {e'': obj s} 
+                {D_rb1: RB_eq s e e'} {D_true1: true (app s o (app s (arrow s o) (eq s) e) e')}
+                {D_rb2: RB_eq s e' e''} {D_true2: true (app s o (app s (arrow s o) (eq s) e') e'')}
+                (soundness_eq s e e' D_rb1 D_true1) -> (soundness_eq s e' e'' D_rb2 D_true2) ->
+                (soundness_eq s e e'' (RB_eq_trans s e e' e'' D_rb1 D_rb2) 
+                (eq-e s ([x:obj s] app s o (app s (arrow s o) (eq s) x) e'') e' e (eq-e s ([y:obj s]  app s o (app s (arrow s o) (eq s) y) e) e e' D_true1  (eq-i s e)) D_true2)).
+
+case_eq_eta : {s:holtype} {t:holtype} {e: obj (arrow s t)} 
+                soundness_eq (arrow s t) (lam s t ([x:obj s] app s t e x)) e (RB_eq_eta s t e) (eq-eta s t e).
+
+
+%mode soundness_eq +S +E +E' +D_rb_eq -D_true'.
+%block b_var : some {T:holtype} block {x:obj T}.
+%worlds (b_var) (soundness_eq  _ _ _ _ _).
+%total D_rb_eq (soundness_eq _ _ _ D_rb_eq _).

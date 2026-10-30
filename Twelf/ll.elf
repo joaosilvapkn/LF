@@ -1,0 +1,63 @@
+o : type.
+and : o -> o -> o.
+or : o -> o -> o.
+
+true : o -> o -> type.
+
+Ax : {a:o} true a a.
+
+andl1 : {a1:o} {a2:o} {b:o} true a1 b -> true (and a1 a2) b.
+andl2 : {a1:o} {a2:o} {b:o} true a2 b -> true (and a1 a2) b.
+andr : {a:o} {b1:o} {b2:o} true a b1 -> true a b2 -> true a (and b1 b2).
+
+orl : {a1:o} {a2:o} {b:o} true a1 b -> true a2 b -> true (or a1 a2) b.
+orr1 : {a:o} {b1:o} {b2:o} true a b1 -> true a (or b1 b2).
+orr2 : {a:o} {b1:o} {b2:o} true a b2 -> true a (or b1 b2).
+
+
+
+cut : {a:o} {b:o} {c:o} true a b -> true b c -> true a c -> type.
+
+
+cut1 : {b:o} cut b b b (Ax b) (Ax b) (Ax b).
+
+cut2 : {b:o} {c:o} {d: true b c} cut b b c (Ax b) d d.
+
+cut3 : {a:o} {b:o} {d: true a b} cut a b b d (Ax b) d.
+
+cutand1 : {a:o} {b1:o} {b2:o} {c:o} {d1:true a b1} {d2:true a b2} {h:true b1 c} {f:true a c}
+    cut a b1 c d1 h f -> cut a (and b1 b2) c (andr a b1 b2 d1 d2) (andl1 b1 b2 c h) f.
+
+cutand1 : {a:o} {b1:o} {b2:o} {c:o} {d1:true a b1} {d2:true a b2} {h:true b2 c} {f:true a c}
+    cut a b2 c d2 h f -> cut a (and b1 b2) c (andr a b1 b2 d1 d2) (andl2 b1 b2 c h) f.
+
+
+cutor1 : {a:o} {b1:o} {b2:o} {c:o} {d:true a b1} {h1:true b1 c} {h2:true b2 c} {f:true a c}
+    cut a b1 c d h1 f -> cut a (or b1 b2) c (orr1 a b1 b2 d) (orl b1 b2 c h1 h2) f.
+
+cutor1 : {a:o} {b1:o} {b2:o} {c:o} {d:true a b2} {h1:true b1 c} {h2:true b2 c} {f:true a c}
+    cut a b2 c d h2 f -> cut a (or b1 b2) c (orr2 a b1 b2 d) (orl b1 b2 c h1 h2) f.
+
+
+cutand3: {a1:o} {a2:o} {b:o} {c:o} {d:true a1 b} {h:true b c} {f:true a1 c}
+    cut a1 b c d h f -> cut (and a1 a2) b c (andl1 a1 a2 b d) h (andl1 a1 a2 c f).
+
+cutand4: {a1:o} {a2:o} {b:o} {c:o} {d:true a2 b} {h:true b c} {f:true a2 c}
+    cut a2 b c d h f -> cut (and a1 a2) b c (andl2 a1 a2 b d) h (andl2 a1 a2 c f).
+
+cutor3 : {a1:o} {a2:o} {b:o} {c:o} {d1:true a1 b} {d2:true a2 b} {h:true b c} {f1:true a1 c} {f2:true a2 c}
+    cut a1 b c d1 h f1 -> cut a2 b c d2 h f2 -> cut (or a1 a2) b c (orl a1 a2 b d1 d2) h (orl a1 a2 c f1 f2). 
+
+cutand5: {a:o} {b:o} {c1:o} {c2:o} {d:true a b} {h1:true b c1} {h2:true b c2} {f1:true a c1} {f2:true a c2}
+    cut a b c1 d h1 f1 -> cut a b c2 d h2 f2 -> cut a b (and c1 c2) d (andr b c1 c2 h1 h2) (andr a c1 c2 f1 f2).
+
+cutor4: {a:o} {b:o} {c1:o} {c2:o} {d:true a b} {h:true b c1} {f:true a c1}
+    cut a b c1 d h f -> cut a b (or c1 c2) d (orr1 b c1 c2 h) (orr1 a c1 c2 f). 
+
+cutor5: {a:o} {b:o} {c1:o} {c2:o} {d:true a b} {h:true b c2} {f:true a c2}
+    cut a b c2 d h f -> cut a b (or c1 c2) d (orr2 b c1 c2 h) (orr2 a c1 c2 f). 
+
+
+%mode cut +A +B +C +D +H -F.
+%worlds () (cut _ _ _ _ _ _).
+%total {B [D H]} (cut _ B _ D H _).
